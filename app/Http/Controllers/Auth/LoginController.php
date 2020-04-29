@@ -49,19 +49,25 @@ class LoginController extends Controller
     public function handleProviderCallback(Request $request, string $provider)
     {
         $providerUser = Socialite::driver($provider)->stateless()->user();
- 
+
         $user = User::where('email', $providerUser->getEmail())->first();
- 
+
         if ($user) {
             $this->guard()->login($user, true);
             return $this->sendLoginResponse($request);
         }
-        
+
         // $userがnullの場合の処理
         return redirect()->route('register.{provider}', [
             'provider' => $provider,
             'email' => $providerUser->getEmail(),
             'token' => $providerUser->token,
         ]);
+    }
+
+    //ログアウト後の移動
+    protected function loggedOut(Request $request)
+    {
+        return view('auth.login');
     }
 }
